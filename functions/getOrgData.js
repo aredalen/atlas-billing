@@ -44,9 +44,7 @@ getInvoices = async function(org, username, password)
 
 getInvoice = async function(org, username, password, invoice)
 { 
-  const collection = context.services.get(`mongodb-atlas`).db(`billing`).collection(`billingdata`);
-
-  const args = {
+  const collection = context.services.get(`mongodb-atlas`).db(`billing`).collection(`billingdata`);  const args = {
     "scheme": `https`,
     "host": `cloud.mongodb.com`,
     "username": username,
@@ -58,9 +56,17 @@ getInvoice = async function(org, username, password, invoice)
   const response = await context.http.get(args);
   const body = JSON.parse(response.body.text());
   body.linkedInvoices = null; // Potentially large, and not needed.
+  const billedLineItems = [];
+  body.lineItems.forEach(li => {
+    if (li.totalPriceCents > 0) {
+      billedLineItems.push(li);
+    }
+  });
+  body.lineItems = billedLineItems;
+  
   if (response.statusCode != 200) throw {"error": body.detail, "fn": "getInvoice", "statusCode": response.statusCode};
   return collection.replaceOne({"id": body.id}, body, {"upsert": true});
-};
+}; 
 
 getOrg = async function(org, username, password)
 {
