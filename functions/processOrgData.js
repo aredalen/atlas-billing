@@ -53,9 +53,13 @@ processAll = async function(org, date)
     "_id": 0,
     "org": { "id": "$orgId", "name": { "$ifNull": ["$orgdata.name", "$orgId" ]} },
     "project": { "id": "$lineItems.groupId", "name": "$lineItems.groupName"},
+    "invoiceId": "$id",
     "cluster": { "$ifNull": ["$lineItems.clusterName", "--n/a--" ]},
     "sku": "$lineItems.sku",
     "cost": { "$toDecimal": { "$divide": [ "$lineItems.totalPriceCents", 100 ]}},
+    "unit": "$lineItems.unit",
+    "quantity": "$lineItems.quantity",
+    "unitPriceDollars": { "$toDecimal": "$lineItems.unitPriceDollars" },
     "date": 1,
     provider: {
       '$switch': {
